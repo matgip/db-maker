@@ -33,15 +33,17 @@ def main():
 
     WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(
-            (By.XPATH, sigungu_search_box_xpath))).send_keys("강동구")
+            (By.XPATH, sigungu_search_box_xpath))).send_keys("종로구")
 
     WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable(
             (By.XPATH,
-             registration_number_input_xpath))).send_keys("11740-2016-00185")
+             registration_number_input_xpath))).send_keys("92200000-1694")
 
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, search_button_xpath))).click()
+    while len(driver.find_element_by_xpath(search_result_href_xpath)) == 0:
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(
+                (By.XPATH, search_button_xpath))).click()
 
     WebDriverWait(driver, 120).until(
         EC.element_to_be_clickable(
