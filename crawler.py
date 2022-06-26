@@ -98,8 +98,8 @@ class Crawler:
         # HTML 구문 분석 & 데이터 추출
         html = self.driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
-        ths = soup.findAll("th")
-        tds = soup.findAll("td")
+        ths = soup.find(class_="bl_write2").findAll("th")
+        tds = soup.find(class_="bl_write2").findAll("td")
 
         dataset = {}
         for i in range(0, len(tds)):

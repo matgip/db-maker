@@ -22,7 +22,6 @@ class DatabaseManager:
             sigungu = sido_sigungu[1]
 
             dataset = self.crawler.crawling(sido, sigungu, reg_num)
-            print(dataset)
             latlng = self.geo_finder.get_latlng(dataset['소재지'])
             print(latlng)
 
