@@ -32,7 +32,7 @@ class DatabaseManager:
             dataset["x"] = latlng[1]
             dataset["id"] = agency_id
 
-            self.redis_controller.save(dataset)
+            self.redis_controller.save_real_estate_agency(dataset)
 
             agency_id += 1
 

@@ -16,7 +16,7 @@ class RedisController:
     def __init__(self):
         self.r = redis.Redis(connection_pool=pool)
 
-    def save(self, dataset):
+    def save_real_estate_agency(self, dataset):
         self.r.hmset(
             "agency:" + str(dataset["id"]), {
                 "id": dataset["id"],

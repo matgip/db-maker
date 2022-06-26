@@ -42,7 +42,6 @@ def main():
 
     db_manager = DatabaseManager(crawler, geo_finder, redis_controller)
     db_manager.process("AL_00_D171_20220625.csv")
-    # save_to_redis("results.txt")
 
 
 if __name__ == "__main__":
