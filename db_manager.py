@@ -8,6 +8,8 @@ class DatabaseManager:
         self.geo_finder = geo_finder
         self.redis_controller = redis_controller
 
+    # '국가공간포털'에서 제공하는 db(csv 파일)를 읽고
+    # 위/경도 값을 얻어서 redis server에 저장한다
     def process(self, file_name):
         database = open(file_name, "r", encoding="cp949")
         reader = csv.reader(database)
