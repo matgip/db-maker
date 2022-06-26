@@ -11,12 +11,12 @@ class DatabaseManager:
         reader = csv.reader(database)
 
         for line in reader:
-            sido_sigungu = line[1].split(" ")
             reg_num = line[2]
+
+            sido_sigungu = line[1].split(" ")
             if len(sido_sigungu) != 2:
                 print("Invalid CSV file format...")
                 continue
-
             sido = sido_sigungu[0]
             sigungu = sido_sigungu[1]
 

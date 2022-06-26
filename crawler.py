@@ -44,8 +44,8 @@ class Crawler:
 
     def crawling(self, sido, sigungu, reg_num):
         "Crawling real estate agency infos"
-        self.driver.get(self.url)
         try:
+            self.driver.get(self.url)
             self._select_sido(sido)
             self._select_sigungu(sigungu)
             self._put_registration_number(reg_num)
