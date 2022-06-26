@@ -5,13 +5,11 @@ from selenium import webdriver
 import os
 from dotenv import load_dotenv
 
+from geo_finder import GeoFinder
 from crawler import Crawler, CrawlerXpathDAO
 from db_manager import DatabaseManager
 
 load_dotenv()
-
-url = os.environ['KAKAO_SEARCH_URL']
-headers = {"Authorization": "KakaoAK " + os.environ['KAKAO_REST_API_KEY']}
 
 # Connect to redis server
 pool = redis.ConnectionPool(host=os.environ['REDIS_DB_HOST'],
@@ -36,13 +34,18 @@ search_result_href_xpath = '//*[@id="searchVO"]/div[2]/table/tbody/tr/td[3]/a'
 
 
 def main():
+    # web crawler
     crawler_xpath_dao = CrawlerXpathDAO(sido_search_box_xpath,
                                         sigungu_search_box_xpath,
                                         registration_number_input_xpath,
                                         search_button_xpath,
                                         search_result_href_xpath)
     crawler = Crawler(driver, real_estate_agency_search_url, crawler_xpath_dao)
-    db_manager = DatabaseManager(crawler)
+
+    # geo location finder
+    geo_finder = GeoFinder()
+
+    db_manager = DatabaseManager(crawler, geo_finder)
     db_manager.process("AL_00_D171_20220625.csv")
     # save_to_redis("results.txt")
 

@@ -51,7 +51,7 @@ class Crawler:
             self._put_registration_number(reg_num)
             self._click_search_button()
             self._click_search_result_href()
-            self._parse_agency_infos()
+            return self._parse_agency_infos()
 
         except Exception as error:
             print(error)
@@ -98,6 +98,12 @@ class Crawler:
         # HTML 구문 분석 & 데이터 추출
         html = self.driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
-        contents = soup.findAll("td")
-        data = [data.text.strip() for data in contents]
-        print(data)
+        ths = soup.findAll("th")
+        tds = soup.findAll("td")
+
+        dataset = {}
+        for i in range(0, len(tds)):
+            field = ths[i].text.strip()
+            data = tds[i].text.strip()
+            dataset[field] = data
+        return dataset

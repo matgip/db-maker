@@ -3,8 +3,9 @@ import csv
 
 class DatabaseManager:
 
-    def __init__(self, crawler):
+    def __init__(self, crawler, geo_finder):
         self.crawler = crawler
+        self.geo_finder = geo_finder
 
     def process(self, file_name):
         database = open(file_name, "r", encoding="cp949")
@@ -20,6 +21,9 @@ class DatabaseManager:
             sido = sido_sigungu[0]
             sigungu = sido_sigungu[1]
 
-            self.crawler.crawling(sido, sigungu, reg_num)
+            dataset = self.crawler.crawling(sido, sigungu, reg_num)
+            print(dataset)
+            latlng = self.geo_finder.get_latlng(dataset['소재지'])
+            print(latlng)
 
         database.close()
