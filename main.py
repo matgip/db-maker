@@ -1,5 +1,3 @@
-import redis
-
 from selenium import webdriver
 
 import os
@@ -8,14 +6,9 @@ from dotenv import load_dotenv
 from geo_finder import GeoFinder
 from crawler import Crawler, CrawlerXpathDAO
 from db_manager import DatabaseManager
+from redis_controller import RedisController
 
 load_dotenv()
-
-# Connect to redis server
-pool = redis.ConnectionPool(host=os.environ['REDIS_DB_HOST'],
-                            port=os.environ['REDIS_DB_PORT'],
-                            db=os.environ['REDIS_DB_INDEX'])
-r = redis.Redis(connection_pool=pool)
 
 driver = webdriver.Chrome(os.environ['CHROME_DRIVER_PATH'])
 # Crawling url path
@@ -45,7 +38,9 @@ def main():
     # geo location finder
     geo_finder = GeoFinder()
 
-    db_manager = DatabaseManager(crawler, geo_finder)
+    redis_controller = RedisController()
+
+    db_manager = DatabaseManager(crawler, geo_finder, redis_controller)
     db_manager.process("AL_00_D171_20220625.csv")
     # save_to_redis("results.txt")
 
