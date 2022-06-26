@@ -3,10 +3,10 @@ from selenium import webdriver
 import os
 from dotenv import load_dotenv
 
-from geo_finder import GeoFinder
 from crawler import Crawler, CrawlerXpathDAO
 from db_manager import DatabaseManager
-from redis_controller import RedisController
+from db_manager import RedisController
+from db_manager import GeoFinder
 
 load_dotenv()
 
