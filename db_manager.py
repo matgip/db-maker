@@ -72,8 +72,14 @@ class DatabaseManager:
         database = open(file_name, "r", encoding="cp949")
         reader = csv.reader(database)
 
-        agency_id = 1
+        l = 1
+        # agency_id = 1
+        agency_id = 959
         for line in reader:
+            if l <= 965:
+                l += 1
+                continue
+
             reg_num = line[2]
 
             sido_sigungu = line[1].split(" ")
@@ -84,6 +90,10 @@ class DatabaseManager:
             sigungu = sido_sigungu[1]
 
             dataset = self.crawler.crawling(sido, sigungu, reg_num)
+            if dataset == "not_in_service":
+                # 휴업중
+                print("현재 부동산이 휴업중...")
+                continue
 
             # 국가공간포털은 위/경도를 반환하지 않기 때문에
             # 카카오 REST API를 이용하여 위/경도 값을 받아옴
