@@ -72,13 +72,8 @@ class DatabaseManager:
         database = open(file_name, "r", encoding="cp949")
         reader = csv.reader(database)
 
-        l = 1
-        # agency_id = 1
-        agency_id = 959
+        agency_id = 1
         for line in reader:
-            if l <= 965:
-                l += 1
-                continue
 
             reg_num = line[2]
 
