@@ -30,6 +30,8 @@ class RedisController:
                 "owner": dataset['대표자'],
                 "varified": dataset['보증보험유무']
             })
+        values = (dataset['x'], dataset['y'], dataset['id'])
+        self.r.geoadd("agency", values)
 
 
 # 카카오 REST API를 이용하여 (위/경도) 값을 얻어옴
@@ -63,7 +65,7 @@ class DatabaseManager:
 
     # '국가공간포털'에서 제공하는 db(csv 파일)를 읽고
     # '국가공간포털'에서 해당 부동산 정보를 crawling 한다.
-    # '국가공간포털'에서는 (위/경도) 값을을 제공하지 않기 때문에
+    # '국가공간포털'에서는 (위/경도) 값을 제공하지 않기 때문에
     # 카카오 REST API를 이용하여 (위/경도)를 받아온 후,
     # redis server에 hashmap으로 저장한다
     def process(self, file_name):
