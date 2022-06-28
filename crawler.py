@@ -1,12 +1,25 @@
+from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
 from bs4 import BeautifulSoup
 
+import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# 시/도 선택 search box xpath
+sido_search_box_xpath = '//*[@id="shSido"]'
+# 시/군/구 선택 search box xpath
+sigungu_search_box_xpath = '//*[@id="shSigungu"]'
+# 등록번호
+registration_number_input_xpath = '//*[@id="shWord1"]'
+# 검색 버튼
+search_button_xpath = '//*[@id="icon_btn_write"]'
+# 검색 결과 하이퍼 링크 버튼
+search_result_href_xpath = '//*[@id="searchVO"]/div[2]/table/tbody/tr/td[3]/a'
 
 
 class CrawlerXpathDAO:
@@ -37,10 +50,14 @@ class CrawlerXpathDAO:
 
 class Crawler:
 
-    def __init__(self, driver, url, xpath_dao):
-        self.driver = driver
-        self.url = url
-        self.xpath_dao = xpath_dao
+    def __init__(self):
+        self.driver = webdriver.Chrome(os.environ['CHROME_DRIVER_PATH'])
+        self.url = os.environ['REAL_ESTATE_AGENCY_SEARCH_URL']
+        self.xpath_dao = CrawlerXpathDAO(sido_search_box_xpath,
+                                         sigungu_search_box_xpath,
+                                         registration_number_input_xpath,
+                                         search_button_xpath,
+                                         search_result_href_xpath)
 
     def crawling(self, sido, sigungu, reg_num):
         "Crawling real estate agency infos"
@@ -122,6 +139,8 @@ class Crawler:
         soup = BeautifulSoup(html, 'html.parser')
         ths = soup.find(class_="bl_write2").findAll("th")
         tds = soup.find(class_="bl_write2").findAll("td")
+        if len(tds) == 0:
+            return "not_in_service"
 
         dataset = {}
         for i in range(0, len(tds)):
