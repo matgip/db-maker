@@ -74,7 +74,6 @@ class DatabaseManager:
 
         agency_id = 1
         for line in reader:
-
             reg_num = line[2]
 
             sido_sigungu = line[1].split(" ")

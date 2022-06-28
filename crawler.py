@@ -77,7 +77,9 @@ class Crawler:
     def _click_search_button(self):
         # BUG: Sometimes url respond with emtpy data... try again until
         # get real estate agency infos
-        while True:
+        MAX_RETRY_COUNT = 5
+        retry = 0
+        while retry < MAX_RETRY_COUNT:
             try:
                 WebDriverWait(self.driver, 600).until(
                     EC.element_to_be_clickable(
@@ -93,6 +95,10 @@ class Crawler:
                 print(error)
                 if self._is_not_in_service() == True:
                     return "not_in_service"
+            retry += 1
+
+        if retry == MAX_RETRY_COUNT:
+            return "not_in_service"
 
     def _click_search_result_href(self):
         WebDriverWait(self.driver, 600).until(
