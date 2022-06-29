@@ -97,14 +97,10 @@ class GeoFinder:
 class DatabaseManager:
 
     def __init__(self, file_name, crawler, geo_finder, redis_controller):
-        self.database = open(file_name, "r", encoding="cp949")
-        self.reader = csv.reader(self.database)
+        self.file_name = file_name
         self.crawler = crawler
         self.geo_finder = geo_finder
         self.redis_controller = redis_controller
-
-    def __del__(self):
-        self.database.close()
 
     # '국가공간포털'에서 제공하는 db(csv 파일)를 읽고
     # '국가공간포털'에서 해당 부동산 정보를 crawling 한다.
@@ -115,13 +111,18 @@ class DatabaseManager:
         while True:
             (agency_id, line_to_process
              ) = self.redis_controller.get_agency_id_and_line_to_process()
+            print(agency_id, line_to_process)
             if line_to_process >= 119347:
                 break
 
-            for i, row in enumerate(self.reader):
+            database = open(self.file_name, "r", encoding="cp949")
+            reader = csv.reader(database)
+
+            for i, row in enumerate(reader):
                 if i == line_to_process:
                     line = row
             reg_num = line[2]
+            print(line)
 
             sido_sigungu = line[1].split(" ")
             if len(sido_sigungu) < 2:
@@ -151,3 +152,5 @@ class DatabaseManager:
             dataset["id"] = agency_id
 
             self.redis_controller.save_real_estate_agency(dataset)
+
+            database.close()
