@@ -142,9 +142,12 @@ class DatabaseManager:
 
             # 국가공간포털은 위/경도를 반환하지 않기 때문에
             # 카카오 REST API를 이용하여 위/경도 값을 받아옴
-            latlng = self.geo_finder.get_latlng(dataset['소재지'])
-            dataset["y"] = latlng[0]
-            dataset["x"] = latlng[1]
+            (lat, lng) = self.geo_finder.get_latlng(dataset['소재지'])
+            if lat is None or lng is None:
+                print("The api max request counts exceed...")
+                break
+            dataset["y"] = lat
+            dataset["x"] = lng
             dataset["id"] = agency_id
 
             self.redis_controller.save_real_estate_agency(dataset)

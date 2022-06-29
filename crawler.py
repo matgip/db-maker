@@ -139,7 +139,7 @@ class Crawler:
         soup = BeautifulSoup(html, 'html.parser')
         ths = soup.find(class_="bl_write2").findAll("th")
         tds = soup.find(class_="bl_write2").findAll("td")
-        if len(tds) == 0:
+        if len(tds) == 0 or tds is None:
             return "not_in_service"
 
         dataset = {}
