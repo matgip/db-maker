@@ -33,6 +33,44 @@ class RedisController:
         values = (dataset['x'], dataset['y'], dataset['id'])
         self.r.geoadd("agency", values)
 
+    def get_agency_id_and_line_to_process(self):
+        with self.r.pipeline() as pipe:
+            while True:
+                try:
+                    # put a WATCH on the key that holds our sequence value
+                    pipe.watch('agency_id')
+                    pipe.watch('processed_line')
+                    # after WATCHing, the pipeline is put into immediate execution
+                    # mode until we tell it to start buffering commands again.
+                    # this allows us to get the current value of our sequence
+                    current_agency_id = pipe.get('agency_id')
+                    if current_agency_id is None:
+                        current_agency_id = 0
+                    next_agency_id = int(current_agency_id) + 1
+
+                    processed_line = pipe.get('processed_line')
+                    if processed_line is None:
+                        processed_line = 0
+                    line_to_process = int(processed_line) + 1
+                    # now we can put the pipeline back into buffered mode with MULTI
+                    pipe.multi()
+                    pipe.set('agency_id', next_agency_id)
+                    pipe.set('processed_line', line_to_process)
+                    # and finally, execute the pipeline (the set command)
+                    pipe.execute()
+                    # if a WatchError wasn't raised during execution, everything
+                    # we just did happened automically.
+                    break
+
+                except redis.WatchError:
+                    # another client must have changed 'agency_id' between
+                    # the time we started WATCHing it and the pipeline's exception.
+                    # our best bet is to just retry.
+                    continue
+                finally:
+                    pipe.reset()
+            return (next_agency_id, line_to_process)
+
 
 # 카카오 REST API를 이용하여 (위/경도) 값을 얻어옴
 class GeoFinder:
@@ -58,22 +96,31 @@ class GeoFinder:
 
 class DatabaseManager:
 
-    def __init__(self, crawler, geo_finder, redis_controller):
+    def __init__(self, file_name, crawler, geo_finder, redis_controller):
+        self.database = open(file_name, "r", encoding="cp949")
+        self.reader = csv.reader(self.database)
         self.crawler = crawler
         self.geo_finder = geo_finder
         self.redis_controller = redis_controller
+
+    def __del__(self):
+        self.database.close()
 
     # '국가공간포털'에서 제공하는 db(csv 파일)를 읽고
     # '국가공간포털'에서 해당 부동산 정보를 crawling 한다.
     # '국가공간포털'에서는 (위/경도) 값을 제공하지 않기 때문에
     # 카카오 REST API를 이용하여 (위/경도)를 받아온 후,
     # redis server에 hashmap으로 저장한다
-    def process(self, file_name):
-        database = open(file_name, "r", encoding="cp949")
-        reader = csv.reader(database)
+    def process(self):
+        while True:
+            (agency_id, line_to_process
+             ) = self.redis_controller.get_agency_id_and_line_to_process()
+            if line_to_process >= 119347:
+                break
 
-        agency_id = 1
-        for line in reader:
+            for i, row in enumerate(self.reader):
+                if i == line_to_process:
+                    line = row
             reg_num = line[2]
 
             sido_sigungu = line[1].split(" ")
@@ -97,7 +144,3 @@ class DatabaseManager:
             dataset["id"] = agency_id
 
             self.redis_controller.save_real_estate_agency(dataset)
-
-            agency_id += 1
-
-        database.close()
