@@ -124,11 +124,15 @@ class DatabaseManager:
             reg_num = line[2]
 
             sido_sigungu = line[1].split(" ")
-            if len(sido_sigungu) != 2:
+            if len(sido_sigungu) < 2:
                 print("Invalid CSV file format...")
                 continue
-            sido = sido_sigungu[0]
-            sigungu = sido_sigungu[1]
+            elif len(sido_sigungu) == 3:
+                sido = sido_sigungu[0]
+                sigungu = sido_sigungu[1] + sido_sigungu[2]
+            else:
+                sido = sido_sigungu[0]
+                sigungu = sido_sigungu[1]
 
             dataset = self.crawler.crawling(sido, sigungu, reg_num)
             if dataset == "not_in_service":
