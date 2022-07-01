@@ -64,7 +64,8 @@ class Crawler:
         try:
             self.driver.get(self.url)
             self._select_sido(sido)
-            self._select_sigungu(sigungu)
+            if sigungu is not None:
+                self._select_sigungu(sigungu)
             self._put_registration_number(reg_num)
             if self._click_search_button() == "not_in_service":
                 return "not_in_service"

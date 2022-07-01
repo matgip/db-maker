@@ -77,6 +77,7 @@ class GeoFinder:
 
     def __init__(self):
         self.url = os.environ['KAKAO_GEO_SEARCH_URL']
+        self.cached_latlng = {}
         self.headers = {
             "Authorization": "KakaoAK " + os.environ['KAKAO_REST_API_KEY']
         }
@@ -86,12 +87,33 @@ class GeoFinder:
             params = {'query': address}
             response = requests.get(self.url,
                                     params=params,
-                                    headers=self.headers).json()['documents']
+                                    headers=self.headers).json()
+            if response['documents'] is None:
+                return (None, None)
+            doc = response['documents']
+
             # Search lat,lng until get find nearest
-            if len(response) == 0:
+            if len(doc) == 0:
                 address = str(address.rpartition(" ")[0])
             else:
-                return (response[0]['y'], response[0]['x'])
+                lat = doc[0]['y']
+                lng = doc[0]['x']
+                if self.is_cached(lat, lng) == True:
+                    print("Exact same (lat/lng), move a little bit to top...")
+                    lat = str(float(lat) - 0.00002)
+
+                self.cache_latlng(lat, lng)
+                return (doc[0]['y'], doc[0]['x'])
+
+    def is_cached(self, lat, lng):
+        try:
+            is_duplicated = self.cached_latlng[lat] == lng
+            return is_duplicated
+        except KeyError:
+            return False
+
+    def cache_latlng(self, lat, lng):
+        self.cached_latlng[lat] = lng
 
 
 class DatabaseManager:
@@ -125,15 +147,18 @@ class DatabaseManager:
             print(line)
 
             sido_sigungu = line[1].split(" ")
-            if len(sido_sigungu) < 2:
-                print("Invalid CSV file format...")
-                continue
+            if len(sido_sigungu) == 1:
+                sido = sido_sigungu[0]
+                sigungu = None
+            elif len(sido_sigungu) == 2:
+                sido = sido_sigungu[0]
+                sigungu = sido_sigungu[1]
             elif len(sido_sigungu) == 3:
                 sido = sido_sigungu[0]
                 sigungu = sido_sigungu[1] + sido_sigungu[2]
             else:
-                sido = sido_sigungu[0]
-                sigungu = sido_sigungu[1]
+                print("Invalid CSV...")
+                continue
 
             dataset = self.crawler.crawling(sido, sigungu, reg_num)
             if dataset == "not_in_service":
