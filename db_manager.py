@@ -101,9 +101,8 @@ class GeoFinder:
                 if self.is_cached(lat, lng) == True:
                     print("Exact same (lat/lng), move a little bit to top...")
                     lat = str(float(lat) - 0.00002)
-
                 self.cache_latlng(lat, lng)
-                return (doc[0]['y'], doc[0]['x'])
+                return (lat, lng)
 
     def is_cached(self, lat, lng):
         try:

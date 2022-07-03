@@ -64,8 +64,9 @@ class Crawler:
         try:
             self.driver.get(self.url)
             self._select_sido(sido)
-            if sigungu is not None:
-                self._select_sigungu(sigungu)
+            if sigungu is None and sido == "세종특별자치시":
+                sigungu = "세종시"
+            self._select_sigungu(sigungu)
             self._put_registration_number(reg_num)
             if self._click_search_button() == "not_in_service":
                 return "not_in_service"
@@ -95,7 +96,7 @@ class Crawler:
     def _click_search_button(self):
         # BUG: Sometimes url respond with emtpy data... try again until
         # get real estate agency infos
-        MAX_RETRY_COUNT = 5
+        MAX_RETRY_COUNT = 2
         retry = 0
         while retry < MAX_RETRY_COUNT:
             try:
