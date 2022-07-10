@@ -76,43 +76,24 @@ class RedisController:
 class GeoFinder:
 
     def __init__(self):
-        self.url = os.environ['KAKAO_GEO_SEARCH_URL']
+        self.url = os.environ['NAVER_GEO_SEARCH_URL']
         self.cached_latlng = {}
         self.headers = {
-            "Authorization": "KakaoAK " + os.environ['KAKAO_REST_API_KEY']
+            "X-NCP-APIGW-API-KEY-ID": os.environ['NAVER_CLIENT_ID'],
+            "X-NCP-APIGW-API-KEY": os.environ['NAVER_CLIENT_SECRET']
         }
 
     def get_latlng(self, address):
-        while True:
-            params = {'query': address}
-            response = requests.get(self.url,
-                                    params=params,
-                                    headers=self.headers).json()
-            if response['documents'] is None:
-                return (None, None)
-            doc = response['documents']
-
-            # Search lat,lng until get find nearest
-            if len(doc) == 0:
-                address = str(address.rpartition(" ")[0])
-            else:
-                lat = doc[0]['y']
-                lng = doc[0]['x']
-                if self.is_cached(lat, lng) == True:
-                    print("Exact same (lat/lng), move a little bit to top...")
-                    lat = str(float(lat) - 0.00002)
-                self.cache_latlng(lat, lng)
-                return (lat, lng)
-
-    def is_cached(self, lat, lng):
-        try:
-            is_duplicated = self.cached_latlng[lat] == lng
-            return is_duplicated
-        except KeyError:
-            return False
-
-    def cache_latlng(self, lat, lng):
-        self.cached_latlng[lat] = lng
+        params = {'query': address}
+        response = requests.get(self.url, params=params,
+                                headers=self.headers).json()
+        if response['addresses'] is None:
+            return (None, None)
+        doc = response['addresses']
+        lat = doc[0]['y']
+        lng = doc[0]['x']
+        print("lat: ", lat, ", ", "lng: ", lng)
+        return (lat, lng)
 
 
 class DatabaseManager:
